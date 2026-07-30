@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 — 大健康 CRM v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-primary:#2563EB; --color-primary-hover:#1D4ED8; --color-primary-light:#EFF6FF; --color-primary-ring:rgba(37,99,235,0.25);
+  --color-success:#10B981; --color-success-bg:#ECFDF5; --color-success-text:#047857;
+  --color-error:#EF4444; --color-error-bg:#FEF2F2; --color-error-text:#B91C1C;
+  --color-bg:#F0F2F5; --color-surface:#FFFFFF;
+  --color-text-primary:#111827; --color-text-secondary:#6B7280; --color-text-tertiary:#9CA3AF; --color-text-inverse:#FFFFFF;
+  --color-border:#E5E7EB; --color-border-hover:#D1D5DB;
+  --font-sans:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px;
+  --shadow-sm:0 1px 3px rgba(16,24,40,0.06),0 1px 2px rgba(16,24,40,0.04);
+  --shadow-md:0 4px 8px -2px rgba(16,24,40,0.06),0 2px 4px -2px rgba(16,24,40,0.04);
+  --shadow-lg:0 12px 16px -4px rgba(16,24,40,0.08),0 4px 6px -2px rgba(16,24,40,0.04);
+  --shadow-xl:0 20px 24px -4px rgba(16,24,40,0.10),0 8px 8px -4px rgba(16,24,40,0.04);
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px; --space-16:64px;
+  --text-xs:0.75rem; --text-sm:0.8125rem; --text-base:0.9375rem; --text-lg:1.125rem; --text-xl:1.25rem; --text-2xl:1.5rem;
+  --transition-fast:150ms cubic-bezier(0.4,0,0.2,1);
+  --transition-base:200ms cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+body{font-family:var(--font-sans);color:var(--color-text-primary);background:var(--color-bg);line-height:1.6;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+
+.login-bg{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none;}
+.login-bg .circle{position:absolute;border-radius:50%;opacity:0.06;}
+.login-bg .c1{width:480px;height:480px;background:var(--color-primary);top:-120px;left:-80px;}
+.login-bg .c2{width:360px;height:360px;background:#7C3AED;bottom:-80px;right:-60px;}
+.login-bg .c3{width:200px;height:200px;background:var(--color-primary);top:50%;right:10%;transform:translateY(-50%);}
+
+.login-wrap{position:relative;z-index:1;width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--space-4);}
+
+.login-card{background:var(--color-surface);border-radius:var(--radius-xl);width:100%;max-width:420px;padding:var(--space-10) var(--space-8);box-shadow:var(--shadow-xl);animation:cardEnter 450ms cubic-bezier(0.16,1,0.3,1);}
+@keyframes cardEnter{from{opacity:0;transform:translateY(20px)scale(0.97)}to{opacity:1;transform:translateY(0)scale(1)}}
+
+.login-brand{display:flex;align-items:center;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-2);}
+.login-logo{width:44px;height:44px;border-radius:var(--radius-lg);background:linear-gradient(135deg,var(--color-primary) 0%,#7C3AED 100%);display:flex;align-items:center;justify-content:center;color:var(--color-text-inverse);flex-shrink:0;}
+.login-logo svg{width:24px;height:24px;}
+.login-title{font-size:var(--text-2xl);font-weight:800;letter-spacing:-0.03em;color:var(--color-text-primary);}
+.login-title span{color:var(--color-primary);}
+.login-sub{text-align:center;font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-8);}
+
+.login-error{display:none;align-items:center;gap:var(--space-2);padding:10px 14px;background:var(--color-error-bg);border:1px solid #FCA5A5;border-radius:var(--radius-md);margin-bottom:var(--space-5);font-size:var(--text-sm);color:var(--color-error-text);font-weight:500;}
+.login-error.show{display:flex;}
+.login-error svg{width:16px;height:16px;flex-shrink:0;}
+
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:var(--space-5);}
+.field label{font-size:var(--text-sm);font-weight:600;color:var(--color-text-secondary);}
+.field input{font-family:var(--font-sans);font-size:var(--text-base);color:var(--color-text-primary);background:var(--color-surface);border:1.5px solid var(--color-border);border-radius:var(--radius-md);padding:12px 14px;outline:none;transition:all var(--transition-fast);width:100%;height:46px;}
+.field input:hover{border-color:var(--color-border-hover);}
+.field input:focus{border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-ring);}
+.field input.error{border-color:var(--color-error);box-shadow:0 0 0 3px rgba(239,68,68,0.2);}
+.field input::placeholder{color:var(--color-text-tertiary);}
+.field .input-icon-wrap{position:relative;}
+.field .input-icon-wrap input{padding-left:42px;}
+.field .input-icon-wrap .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--color-text-tertiary);pointer-events:none;}
+.field .input-icon-wrap .icon svg{width:20px;height:20px;}
+
+.login-btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);font-family:var(--font-sans);font-size:var(--text-base);font-weight:700;padding:12px 20px;border-radius:var(--radius-md);border:1.5px solid var(--color-primary);background:var(--color-primary);color:var(--color-text-inverse);cursor:pointer;transition:all var(--transition-fast);height:48px;user-select:none;}
+.login-btn:hover{background:var(--color-primary-hover);border-color:var(--color-primary-hover);}
+.login-btn:active{transform:scale(0.98);}
+.login-btn:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+.login-btn svg{width:20px;height:20px;animation:spin 1s linear infinite;display:none;}
+.login-btn.loading svg{display:inline-block;}
+.login-btn.loading .btn-text{opacity:0.7;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.login-footer{margin-top:var(--space-6);text-align:center;font-size:var(--text-xs);color:var(--color-text-tertiary);}
+
+@media (max-width:480px){
+  .login-card{padding:var(--space-8) var(--space-6);border-radius:var(--radius-lg);}
+}
+</style>
+</head>
+<body>
+
+<div class="login-bg">
+  <div class="circle c1"></div>
+  <div class="circle c2"></div>
+  <div class="circle c3"></div>
+</div>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="login-title">大健康CRM<span>.</span></div>
+    </div>
+    <div class="login-sub">大健康客户关系管理系统 · 请登录您的账号</div>
+
+    <div class="login-error" id="loginError">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <span id="loginErrorMsg">用户名或密码错误</span>
+    </div>
+
+    <div class="field">
+      <label>手机号</label>
+      <div class="input-icon-wrap">
+        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+        <input type="text" id="loginPhone" placeholder="请输入手机号" autocomplete="off" maxlength="11">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>密码</label>
+      <div class="input-icon-wrap">
+        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="off">
+      </div>
+    </div>
+
+    <button class="login-btn" id="loginBtn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span class="btn-text">登 录</span>
+    </button>
+
+    <div class="login-footer">© 2026 大健康 CRM v1.0</div>
+  </div>
+</div>
+
+<script>
+// ===================== Login Logic =====================
+function getAccounts() {
+  try {
+    const raw = localStorage.getItem('crm_accounts');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return [{ id:1, createdAt:'2026-07-14', phone:'13912345678', name:'管理员', role:'管理员', password:'123123' }];
+}
+
+function getRoles() {
+  try {
+    const raw = localStorage.getItem('crm_roles');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return [{ id:1, name:'管理员', createdAt:'2026-07-14', permissions:[] }];
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // If already logged in, redirect to dashboard
+  try {
+    const cur = localStorage.getItem('crm_current_user');
+    if (cur) {
+      const user = JSON.parse(cur);
+      if (user && user.phone) {
+        window.location.href = 'crm-leads-v3.html';
+        return;
+      }
+    }
+  } catch(e) {}
+});
+
+const phoneInput = document.getElementById('loginPhone');
+const pwdInput = document.getElementById('loginPassword');
+const loginBtn = document.getElementById('loginBtn');
+const errorBox = document.getElementById('loginError');
+const errorMsg = document.getElementById('loginErrorMsg');
+
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorBox.classList.add('show');
+  phoneInput.classList.add('error');
+  pwdInput.classList.add('error');
+}
+
+function hideError() {
+  errorBox.classList.remove('show');
+  phoneInput.classList.remove('error');
+  pwdInput.classList.remove('error');
+}
+
+phoneInput.addEventListener('focus', hideError);
+pwdInput.addEventListener('focus', hideError);
+
+function doLogin() {
+  hideError();
+  const phone = phoneInput.value.trim();
+  const password = pwdInput.value;
+
+  if (!phone) {
+    showError('请输入手机号');
+    phoneInput.focus();
+    return;
+  }
+  if (!password) {
+    showError('请输入密码');
+    pwdInput.focus();
+    return;
+  }
+
+  // Loading state
+  loginBtn.disabled = true;
+  loginBtn.classList.add('loading');
+
+  // Simulate short delay for UX
+  setTimeout(() => {
+    const accounts = getAccounts();
+    const account = accounts.find(a => a.phone === phone);
+
+    if (!account) {
+      showError('用户名或密码错误');
+      loginBtn.disabled = false;
+      loginBtn.classList.remove('loading');
+      return;
+    }
+
+    if (account.password !== password) {
+      showError('用户名或密码错误');
+      loginBtn.disabled = false;
+      loginBtn.classList.remove('loading');
+      return;
+    }
+
+    // Login success — build user session
+    const roles = getRoles();
+    const role = roles.find(r => r.name === account.role);
+
+    const session = {
+      phone: account.phone,
+      name: account.name,
+      role: account.role,
+      roleId: account.roleId || (role ? role.id : null),
+      permissions: role ? role.permissions : [],
+      loginTime: new Date().toISOString()
+    };
+
+    localStorage.setItem('crm_current_user', JSON.stringify(session));
+    localStorage.setItem('crm_current_user_name', account.name);
+
+    window.location.href = 'crm-leads-v3.html';
+  }, 600);
+}
+
+loginBtn.addEventListener('click', doLogin);
+
+// Enter key to submit
+phoneInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    if (!this.value.trim()) return;
+    pwdInput.focus();
+  }
+});
+pwdInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>
